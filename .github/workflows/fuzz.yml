@@ -1,0 +1,161 @@
+# AttomusOTP libFuzzer campaigns
+#
+# Runs on Ubuntu using the Linux-only swift-crypto path. Manual trigger for on-demand runs;
+# The schedule is a weekly regression check.
+
+name: fuzz
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_total_time:
+        description: "Campaign duration in seconds (default 14400 = 4 hours)"
+        required: false
+        default: "14400"
+      max_len:
+        description: "Maximum input length in bytes (default 512)"
+        required: false
+        default: "512"
+  schedule:
+    - cron: "0 3 * * 6"
+
+jobs:
+  fuzz:
+    name: libFuzzer campaign (${{ matrix.target_id }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target_id: totp-hotp-uri-base32
+            source_file: swift/Tests/AttomusOTPTests/Fuzzing/FuzzTOTP.swift
+            corpus_dir: swift/Tests/AttomusOTPTests/FuzzCorpus/seed
+            binary_name: FuzzTOTP
+          - target_id: backup-schema
+            source_file: swift/Tests/AttomusOTPTests/Fuzzing/BackupSchemaFuzz.swift
+            corpus_dir: swift/Tests/AttomusOTPTests/BackupFuzzCorpus/seed
+            binary_name: FuzzBackupSchema
+          - target_id: counter-blob
+            source_file: swift/Tests/AttomusOTPTests/Fuzzing/FuzzCounterBlob.swift
+            corpus_dir: swift/Tests/AttomusOTPTests/CounterBlobFuzzCorpus/seed
+            binary_name: FuzzCounterBlob
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Swift
+        uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a # v2.4.0
+        with:
+          swift-version: "6.1"
+
+      - name: Record toolchain version
+        run: swift --version | tee fuzz-toolchain-version.txt
+
+      - name: Build AttomusOTP for Linux release
+        run: |
+          set -o pipefail
+          swift build \
+            --target AttomusOTP \
+            -c release \
+            -Xswiftc -DFUZZ \
+            2>&1 | tee fuzz-build.log
+
+      - name: Compile fuzz binary
+        id: build_fuzz_binary
+        run: |
+          set -o pipefail
+          BIN=$(swift build --target AttomusOTP -c release -Xswiftc -DFUZZ --show-bin-path 2>/dev/null)
+          OBJECTS=()
+          while IFS= read -r -d '' object; do
+            OBJECTS+=("$object")
+          done < <(find "$BIN" \( \
+            -path "$BIN/AttomusOTP.build/*.o" -o \
+            -path "$BIN/Crypto.build/*.o" -o \
+            -path "$BIN/CryptoBoringWrapper.build/*.o" -o \
+            -path "$BIN/CCryptoBoringSSL.build/*.o" -o \
+            -path "$BIN/CCryptoBoringSSLShims.build/*.o" \
+          \) -print0 | sort -z)
+          swiftc \
+            -sanitize=fuzzer \
+            -parse-as-library \
+            -DFUZZ \
+            -I "$BIN/Modules" \
+            "${{ matrix.source_file }}" \
+            "${OBJECTS[@]}" \
+            -o "$BIN/${{ matrix.binary_name }}" \
+            2>&1 | tee -a fuzz-build.log
+          echo "path=$BIN/${{ matrix.binary_name }}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate corpus manifest (pre-run)
+        run: |
+          find "${{ matrix.corpus_dir }}" -type f -print0 | sort -z | xargs -0 sha256sum \
+            > corpus-manifest-pre.txt
+
+      - name: Run campaign
+        run: |
+          set -o pipefail
+          DURATION="${{ github.event.inputs.max_total_time || '14400' }}"
+          MAXLEN="${{ github.event.inputs.max_len || '512' }}"
+          DATE="$(date +%Y%m%d)"
+          "${{ steps.build_fuzz_binary.outputs.path }}" \
+            "${{ matrix.corpus_dir }}" \
+            -max_total_time="$DURATION" \
+            -max_len="$MAXLEN" \
+            -jobs=2 \
+            -workers=2 \
+            -print_final_stats=1 \
+            2>&1 | tee "fuzz-campaign-${DATE}.log"
+
+      - name: Generate corpus manifest (post-run)
+        run: |
+          DATE="$(date +%Y%m%d)"
+          find "${{ matrix.corpus_dir }}" -type f -print0 | sort -z | xargs -0 sha256sum \
+            > "corpus-manifest-${DATE}.txt"
+
+      - name: Write summary
+        run: |
+          DATE="$(date +%Y%m%d)"
+          DURATION="${{ github.event.inputs.max_total_time || '14400' }}"
+          TOOLCHAIN="$(swift --version | head -1)"
+          cat > "fuzz-summary-${DATE}.md" <<EOF
+          # AttomusOTP Fuzzing Summary (${{ matrix.target_id }})
+
+          **Date:** $(date -u +%Y-%m-%d)
+          **Runner:** ubuntu-latest
+          **Toolchain:** ${TOOLCHAIN}
+          **Campaign duration:** ${DURATION}s
+          **Corpus:** ${{ matrix.corpus_dir }}
+
+          ## Result
+
+          See fuzz-campaign-${DATE}.log for full libFuzzer output including
+          final statistics (stat::number_of_executed_units, stat::peak_rss_mb, etc).
+
+          ## Crashes
+
+          Any crash inputs are in the corpus directory prefixed crash-.
+          A clean run has zero crash- files.
+          EOF
+
+          if find "${{ matrix.corpus_dir }}" -name 'crash-*' | grep -q .; then
+            echo "::error::Crash inputs found — campaign failed. Investigate before proceeding."
+            exit 1
+          fi
+
+      - name: Upload evidence artefact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: fuzz-evidence-${{ github.run_id }}-${{ matrix.target_id }}
+          path: |
+            fuzz-campaign-*.log
+            fuzz-build.log
+            corpus-manifest-*.txt
+            fuzz-toolchain-version.txt
+            fuzz-summary-*.md
+            ${{ matrix.corpus_dir }}/crash-*
+          retention-days: 90

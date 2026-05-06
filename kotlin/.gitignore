@@ -1,0 +1,11 @@
+.cifuzz-corpus/
+.gradle/
+.idea/
+.kotlin/
+build/
+local.properties
+*.iml
+*.keystore
+*.jks
+*.orig
+.DS_Store

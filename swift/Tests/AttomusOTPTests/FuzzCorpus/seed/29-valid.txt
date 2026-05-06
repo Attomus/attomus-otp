@@ -1,0 +1,1 @@
+otpauth://totp/Example:account?secret=ABCDEFGHIJKLMNOPQRSTUVWX23456723&issuer=Example&image=https%3A%2F%2Fexample.com%2Ficon.png

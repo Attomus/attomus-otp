@@ -1,0 +1,1 @@
+otpauth://totp/Example:%ZZalice@example.com?secret=IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U

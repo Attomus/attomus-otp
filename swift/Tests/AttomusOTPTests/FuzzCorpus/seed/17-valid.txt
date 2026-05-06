@@ -1,0 +1,1 @@
+otpauth://totp/Big%20Team:ops@example.com?secret=ABCDEFGHIJKLMNOPQRSTUVWX23456723&issuer=Big%20Team
