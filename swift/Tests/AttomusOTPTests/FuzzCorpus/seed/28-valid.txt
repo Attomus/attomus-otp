@@ -1,0 +1,1 @@
+otpauth://totp/AccountOnly?secret=ABCDEFGHIJKLMNOPQRSTUVWX23456723

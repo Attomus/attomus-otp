@@ -1,0 +1,1 @@
+otpauth://totp/Example:alice@example.com?secret=IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U&algorithm=SHA256&digits=7&issuer=Example

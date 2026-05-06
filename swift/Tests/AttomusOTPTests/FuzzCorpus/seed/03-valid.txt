@@ -1,0 +1,1 @@
+otpauth://totp/Example%20Corp:alice@example.com?secret=IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U&issuer=Example%20Corp

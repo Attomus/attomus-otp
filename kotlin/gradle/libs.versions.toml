@@ -1,0 +1,16 @@
+[versions]
+kotlin = "1.9.24"
+detekt = "1.23.6"
+junitJupiter = "5.10.2"
+mockk = "1.13.12"
+nmcp = "0.0.9"
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+nmcp = { id = "com.gradleup.nmcp", version.ref = "nmcp" }
+
+[libraries]
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

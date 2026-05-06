@@ -1,0 +1,1 @@
+otpauth://totp/Label%20With%20Spaces?secret=ABCDEFGHIJKLMNOPQRSTUVWX23456723

@@ -1,0 +1,1 @@
+{"accounts":[{"accountName":"bob@example.com","algorithm":"SHA1","createdAt":"2026-04-17T12:00:00Z","digits":6,"id":"550e8400-e29b-41d4-a716-446655440014","issuer":"Example","secret":"IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U","type":"hotp"}],"exported":"2026-04-17T12:00:00Z","schema":1}

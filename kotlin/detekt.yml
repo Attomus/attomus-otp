@@ -1,0 +1,21 @@
+config:
+  validation: true
+  warningsAsErrors: true
+
+style:
+  MagicNumber:
+    active: false
+  MaxLineLength:
+    active: false
+
+complexity:
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 30
+    thresholdInClasses: 20
+    thresholdInInterfaces: 20
+    thresholdInObjects: 20
+  LongMethod:
+    active: false
+  LargeClass:
+    active: false

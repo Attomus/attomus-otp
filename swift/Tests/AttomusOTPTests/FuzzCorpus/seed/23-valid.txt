@@ -1,0 +1,1 @@
+otpauth://totp/team@example.com?secret=IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U&digits=7

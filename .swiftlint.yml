@@ -1,0 +1,19 @@
+excluded:
+  - .build
+  - .swiftpm
+
+opt_in_rules:
+  - force_unwrapping
+  - fatal_error_message
+
+disabled_rules:
+  - large_tuple
+  - line_length
+
+custom_rules:
+  no_print:
+    included: "Sources"
+    name: "No Print"
+    regex: "\\b(print|NSLog|os_log)\\s*\\("
+    message: "Logging helpers are not permitted in production targets."
+    severity: error

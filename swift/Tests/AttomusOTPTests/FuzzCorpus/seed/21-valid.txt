@@ -1,0 +1,1 @@
+otpauth://totp/Provider1:Alice%20Smith?secret=IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U&issuer=Provider1&algorithm=sha256

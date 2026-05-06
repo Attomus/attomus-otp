@@ -1,0 +1,1 @@
+https://totp/Example:alice@example.com?secret=IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U

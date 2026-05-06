@@ -1,0 +1,1 @@
+otpauth://totp/issuer-only?secret=IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U&issuer=Example&unknown=value
