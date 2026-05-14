@@ -13,34 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      - name: Set up Swift
-        uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a  # v2.4.0
-        with:
-          swift-version: "6.1"
       - name: Build
-        run: swift build
+        run: docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace swift:6.1 swift build
 
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      - name: Set up Swift
-        uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a  # v2.4.0
-        with:
-          swift-version: "6.1"
       - name: Verify package resolution (no auto-update)
-        run: swift package resolve --disable-automatic-resolution
+        run: docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace swift:6.1 swift package resolve --disable-automatic-resolution
       - name: Test
-        run: swift test
+        run: docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace swift:6.1 swift test
 
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      - name: Set up Swift
-        uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a  # v2.4.0
-        with:
-          swift-version: "6.1"
       - name: Lint
         run: docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace ghcr.io/realm/swiftlint:latest --strict
 
