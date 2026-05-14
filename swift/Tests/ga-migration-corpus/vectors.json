@@ -1,0 +1,133 @@
+{
+  "description": "AttomusOTP GA Migration Parser — test vectors",
+  "format_version": 1,
+  "notes": [
+    "Real otpauth-migration:// payloads encoded with the documented GA protobuf schema.",
+    "GA algorithm field: 1=SHA1 2=SHA256 3=SHA512",
+    "GA digits field: 1=six 2=eight",
+    "GA type field: 1=HOTP 2=TOTP",
+    "TOTP period not encoded in GA format — default to 30.",
+    "When issuer field absent/empty, parse from label 'Issuer:account' if colon present.",
+    "secret_hex is raw seed bytes as passed to TOTP.generate / HOTP.generate."
+  ],
+  "vectors": [
+    {
+      "id": "single-totp-sha1-6",
+      "description": "Single TOTP account, SHA-1, 6 digits",
+      "url": "otpauth-migration://offline?data=Ci4KCkhlbGxvId6tvu8SEWFsaWNlQGV4YW1wbGUuY29tGgdFeGFtcGxlIAEoATACEAEYASAAKOdW",
+      "raw_base64": "Ci4KCkhlbGxvId6tvu8SEWFsaWNlQGV4YW1wbGUuY29tGgdFeGFtcGxlIAEoATACEAEYASAAKOdW",
+      "expected": [
+        {
+          "type": "TOTP",
+          "issuer": "Example",
+          "label": "alice@example.com",
+          "algorithm": "SHA1",
+          "digits": 6,
+          "period": 30,
+          "secret_hex": "48656c6c6f21deadbeef",
+          "counter": null
+        }
+      ]
+    },
+    {
+      "id": "single-hotp-counter-42",
+      "description": "Single HOTP account, SHA-1, 6 digits, counter=42",
+      "url": "otpauth-migration://offline?data=CjUKFEFCQ0RFRkdISUpLTE1OT1BRUlNUEg9ib2JAZXhhbXBsZS5jb20aBEFjbWUgASgBMAE4KhABGAEgACjOrQE%3D",
+      "raw_base64": "CjUKFEFCQ0RFRkdISUpLTE1OT1BRUlNUEg9ib2JAZXhhbXBsZS5jb20aBEFjbWUgASgBMAE4KhABGAEgACjOrQE=",
+      "expected": [
+        {
+          "type": "HOTP",
+          "issuer": "Acme",
+          "label": "bob@example.com",
+          "algorithm": "SHA1",
+          "digits": 6,
+          "period": 30,
+          "secret_hex": "4142434445464748494a4b4c4d4e4f5051525354",
+          "counter": 42
+        }
+      ]
+    },
+    {
+      "id": "two-totp-mixed-algorithms",
+      "description": "Two TOTP accounts in one payload; different algorithms and digit counts",
+      "url": "otpauth-migration://offline?data=Ci4KCkhlbGxvId6tvu8SEWFsaWNlQGV4YW1wbGUuY29tGgdFeGFtcGxlIAEoATACCjMKFEFCQ0RFRkdISUpLTE1OT1BRUlNUEg9ib2JAZXhhbXBsZS5jb20aBEFjbWUgAigCMAIQARgCIAAotYQC",
+      "raw_base64": "Ci4KCkhlbGxvId6tvu8SEWFsaWNlQGV4YW1wbGUuY29tGgdFeGFtcGxlIAEoATACCjMKFEFCQ0RFRkdISUpLTE1OT1BRUlNUEg9ib2JAZXhhbXBsZS5jb20aBEFjbWUgAigCMAIQARgCIAAotYQC",
+      "expected": [
+        {
+          "type": "TOTP",
+          "issuer": "Example",
+          "label": "alice@example.com",
+          "algorithm": "SHA1",
+          "digits": 6,
+          "period": 30,
+          "secret_hex": "48656c6c6f21deadbeef",
+          "counter": null
+        },
+        {
+          "type": "TOTP",
+          "issuer": "Acme",
+          "label": "bob@example.com",
+          "algorithm": "SHA256",
+          "digits": 8,
+          "period": 30,
+          "secret_hex": "4142434445464748494a4b4c4d4e4f5051525354",
+          "counter": null
+        }
+      ]
+    },
+    {
+      "id": "totp-no-issuer-field-label-prefix",
+      "description": "TOTP with issuer in label (colon-separated), no issuer field",
+      "url": "otpauth-migration://offline?data=CiwKCkhlbGxvId6tvu8SGEdpdEh1YjpjYXJvbEBleGFtcGxlLmNvbSABKAEwAhABGAEgACic2wI%3D",
+      "raw_base64": "CiwKCkhlbGxvId6tvu8SGEdpdEh1YjpjYXJvbEBleGFtcGxlLmNvbSABKAEwAhABGAEgACic2wI=",
+      "expected": [
+        {
+          "type": "TOTP",
+          "issuer": "GitHub",
+          "label": "carol@example.com",
+          "algorithm": "SHA1",
+          "digits": 6,
+          "period": 30,
+          "secret_hex": "48656c6c6f21deadbeef",
+          "counter": null
+        }
+      ]
+    },
+    {
+      "id": "totp-sha512-8digits",
+      "description": "TOTP, SHA-512, 8 digits",
+      "url": "otpauth-migration://offline?data=CjUKFEFCQ0RFRkdISUpLTE1OT1BRUlNUEhBkYXZlQGV4YW1wbGUuY29tGgVWYXVsdCADKAIwAhABGAEgACiDsgM%3D",
+      "raw_base64": "CjUKFEFCQ0RFRkdISUpLTE1OT1BRUlNUEhBkYXZlQGV4YW1wbGUuY29tGgVWYXVsdCADKAIwAhABGAEgACiDsgM=",
+      "expected": [
+        {
+          "type": "TOTP",
+          "issuer": "Vault",
+          "label": "dave@example.com",
+          "algorithm": "SHA512",
+          "digits": 8,
+          "period": 30,
+          "secret_hex": "4142434445464748494a4b4c4d4e4f5051525354",
+          "counter": null
+        }
+      ]
+    },
+    {
+      "id": "hotp-counter-max-uint32",
+      "description": "HOTP counter at 2^32-1 boundary",
+      "url": "otpauth-migration://offline?data=CjkKFAAAAAAAAAAAAAAAAAAAAAAAAAAAEg9ldmVAZXhhbXBsZS5jb20aBENvcnAgASgBMAE4/////w8QARgBIAAo6ogE",
+      "raw_base64": "CjkKFAAAAAAAAAAAAAAAAAAAAAAAAAAAEg9ldmVAZXhhbXBsZS5jb20aBENvcnAgASgBMAE4/////w8QARgBIAAo6ogE",
+      "expected": [
+        {
+          "type": "HOTP",
+          "issuer": "Corp",
+          "label": "eve@example.com",
+          "algorithm": "SHA1",
+          "digits": 6,
+          "period": 30,
+          "secret_hex": "0000000000000000000000000000000000000000",
+          "counter": 4294967295
+        }
+      ]
+    }
+  ]
+}
