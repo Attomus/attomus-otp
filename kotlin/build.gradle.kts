@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.attomus"
-version = "1.0.1"
+version = "1.0.2"
 
 java {
     toolchain {
@@ -84,8 +84,8 @@ publishing {
 
                 licenses {
                     license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
+                        name.set("Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0")
                     }
                 }
 

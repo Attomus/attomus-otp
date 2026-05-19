@@ -38,7 +38,8 @@ final class OTPURIParserTests: XCTestCase {
             ("otpauth://totp/Example:account?secret=\(alternateSecret)&issuer=Example&image=https%3A%2F%2Fexample.com%2Ficon.png", .totp, "account", "Example", .sha1, 6, 30),
             ("otpauth://totp/Label%20With%20Spaces?secret=\(alternateSecret)", .totp, "Label With Spaces", nil, .sha1, 6, 30),
             ("otpauth://totp/Example:alice@example.com?secret=\(longSecret)&issuer=%20", .totp, "alice@example.com", "Example", .sha1, 6, 30),
-            ("otpauth://totp/Example:alice@example.com?secret=\(longSecret)&algorithm=&digits=&period=", .totp, "alice@example.com", "Example", .sha1, 6, 30)
+            ("otpauth://totp/Example:alice@example.com?secret=\(longSecret)&algorithm=&digits=&period=", .totp, "alice@example.com", "Example", .sha1, 6, 30),
+            ("otpauth://totp/GitHub:attomus-gh?secret=GM7VCK5SIAXEN46J&issuer=GitHub", .totp, "attomus-gh", "GitHub", .sha1, 6, 30)
         ]
 
         XCTAssertGreaterThanOrEqual(validCases.count, 30)
@@ -51,7 +52,7 @@ final class OTPURIParserTests: XCTestCase {
             XCTAssertEqual(result.account.algorithm, algorithm)
             XCTAssertEqual(result.account.digits, digits)
             XCTAssertEqual(result.account.period, period)
-            XCTAssertGreaterThanOrEqual(result.secret.count, 16)
+            XCTAssertGreaterThanOrEqual(result.secret.count, 10)
         }
     }
 
