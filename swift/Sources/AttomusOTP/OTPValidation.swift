@@ -1,7 +1,7 @@
 import Foundation
 
 enum OTPValidation {
-    static let minimumSecretLength = 16
+    static let minimumSecretLength = 10
     static let maximumSecretLength = 64
     static let validDigits: Set<Int> = [6, 7, 8]
     static let validPeriods: Set<Int> = [30, 60]
