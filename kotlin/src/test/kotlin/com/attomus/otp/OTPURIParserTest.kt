@@ -23,7 +23,7 @@ class OTPURIParserTest {
             Triple("otpauth://totp/Example%3Aalice@example.com?secret=$longSecret&issuer=Example", OTPType.TOTP, "alice@example.com"),
             Triple("otpauth://totp/Example:%20alice@example.com?secret=$longSecret&issuer=Example", OTPType.TOTP, "alice@example.com"),
             Triple("otpauth://hotp/Example:alice@example.com?secret=$longSecret&issuer=Example&counter=0", OTPType.HOTP, "alice@example.com"),
-            Triple("otpauth://hotp/Example:alice@example.com?secret=$longSecret&counter=18446744073709551615&issuer=Example", OTPType.HOTP, "alice@example.com"),
+            Triple("otpauth://hotp/Example:alice@example.com?secret=$longSecret&counter=9223372036854775807&issuer=Example", OTPType.HOTP, "alice@example.com"),
             Triple("otpauth://hotp/alice@example.com?secret=$longSecret&counter=42&issuer=Example", OTPType.HOTP, "alice@example.com"),
             Triple("otpauth://totp/alice@example.com?secret=$longSecret", OTPType.TOTP, "alice@example.com"),
             Triple("otpauth://totp/Example:alice@example.com?secret=$alternateSecret&issuer=Example", OTPType.TOTP, "alice@example.com"),
@@ -77,6 +77,8 @@ class OTPURIParserTest {
             "otpauth://hotp/Example:alice@example.com?secret=$longSecret" to OTPURIError.MissingCounter,
             "otpauth://hotp/Example:alice@example.com?secret=$longSecret&counter=-1" to OTPURIError.MissingCounter,
             "otpauth://hotp/Example:alice@example.com?secret=$longSecret&counter=abc" to OTPURIError.MissingCounter,
+            "otpauth://hotp/Example:alice@example.com?secret=$longSecret&counter=9223372036854775808" to OTPURIError.MissingCounter,
+            "otpauth://hotp/Example:alice@example.com?secret=$longSecret&counter=18446744073709551615" to OTPURIError.MissingCounter,
             "otpauth://hotp/Example:alice@example.com?secret=$longSecret&counter=18446744073709551616" to OTPURIError.MissingCounter,
             "otpauth://totp/Example:alice@example.com?secret=$longSecret&issuer=Different" to OTPURIError.IssuerMismatch,
             "otpauth://totp/Example:%ZZalice@example.com?secret=$longSecret" to OTPURIError.MalformedPercentEncoding,
@@ -106,6 +108,15 @@ class OTPURIParserTest {
         assertEquals("alice@example.com", result.account.label)
         assertEquals(42L, result.account.counter)
         assertEquals(30, result.account.period)
+    }
+
+    @Test
+    fun hotpUriParsesMaximumSupportedCounter() {
+        val result = OTPURIParser.parse(
+            "otpauth://hotp/Example:alice@example.com?secret=IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U&issuer=Example&counter=9223372036854775807"
+        )
+
+        assertEquals(Long.MAX_VALUE, result.account.counter)
     }
 
     @Test

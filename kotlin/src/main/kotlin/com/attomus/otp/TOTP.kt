@@ -13,6 +13,9 @@ object TOTP {
         OTPValidation.validateTOTPPeriod(period)
 
         val nowSeconds = clock()
+        if (nowSeconds < 0) {
+            throw TOTPError.InvalidTime
+        }
         val counter = Math.floorDiv(nowSeconds, period.toLong())
         return HOTP.generate(secret = secret, counter = counter, algorithm = algorithm, digits = digits)
     }
@@ -24,8 +27,10 @@ object TOTP {
         OTPValidation.validateTOTPPeriod(period)
 
         val nowSeconds = clock()
+        if (nowSeconds < 0) {
+            throw TOTPError.InvalidTime
+        }
         val remainder = Math.floorMod(nowSeconds, period.toLong())
         return if (remainder == 0L) period else (period - remainder).toInt()
     }
 }
-

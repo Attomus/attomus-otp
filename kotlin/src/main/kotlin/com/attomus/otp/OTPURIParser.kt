@@ -196,7 +196,7 @@ object OTPURIParser {
             throw OTPURIError.MissingCounter
         }
 
-        if (counter.signum() < 0 || counter.bitLength() > 64) {
+        if (counter.signum() < 0 || counter.bitLength() > 63) {
             throw OTPURIError.MissingCounter
         }
 

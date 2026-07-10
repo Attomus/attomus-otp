@@ -18,7 +18,7 @@ final class OTPURIParserTests: XCTestCase {
             ("otpauth://totp/Example%3Aalice@example.com?secret=\(longSecret)&issuer=Example", .totp, "alice@example.com", "Example", .sha1, 6, 30),
             ("otpauth://totp/Example:%20alice@example.com?secret=\(longSecret)&issuer=Example", .totp, "alice@example.com", "Example", .sha1, 6, 30),
             ("otpauth://hotp/Example:alice@example.com?secret=\(longSecret)&issuer=Example&counter=0", .hotp, "alice@example.com", "Example", .sha1, 6, 30),
-            ("otpauth://hotp/Example:alice@example.com?secret=\(longSecret)&counter=18446744073709551615&issuer=Example", .hotp, "alice@example.com", "Example", .sha1, 6, 30),
+            ("otpauth://hotp/Example:alice@example.com?secret=\(longSecret)&counter=9223372036854775807&issuer=Example", .hotp, "alice@example.com", "Example", .sha1, 6, 30),
             ("otpauth://hotp/alice@example.com?secret=\(longSecret)&counter=42&issuer=Example", .hotp, "alice@example.com", "Example", .sha1, 6, 30),
             ("otpauth://totp/alice@example.com?secret=\(longSecret)", .totp, "alice@example.com", nil, .sha1, 6, 30),
             ("otpauth://totp/Example:alice@example.com?secret=\(alternateSecret)&issuer=Example", .totp, "alice@example.com", "Example", .sha1, 6, 30),
@@ -75,6 +75,8 @@ final class OTPURIParserTests: XCTestCase {
             ("otpauth://hotp/Example:alice@example.com?secret=\(longSecret)", .missingCounter),
             ("otpauth://hotp/Example:alice@example.com?secret=\(longSecret)&counter=-1", .missingCounter),
             ("otpauth://hotp/Example:alice@example.com?secret=\(longSecret)&counter=abc", .missingCounter),
+            ("otpauth://hotp/Example:alice@example.com?secret=\(longSecret)&counter=9223372036854775808", .missingCounter),
+            ("otpauth://hotp/Example:alice@example.com?secret=\(longSecret)&counter=18446744073709551615", .missingCounter),
             ("otpauth://hotp/Example:alice@example.com?secret=\(longSecret)&counter=18446744073709551616", .missingCounter),
             ("otpauth://totp/Example:alice@example.com?secret=\(longSecret)&issuer=Different", .issuerMismatch),
             ("otpauth://totp/Example:%ZZalice@example.com?secret=\(longSecret)", .malformedPercentEncoding),
@@ -102,5 +104,10 @@ final class OTPURIParserTests: XCTestCase {
         XCTAssertEqual(result.account.label, "alice@example.com")
         XCTAssertEqual(result.account.period, 30)
         XCTAssertEqual(result.account.counter, 42)
+    }
+
+    func testHOTPParsesMaximumSupportedCounter() throws {
+        let result = try parseOTPURI("otpauth://hotp/Example:alice@example.com?secret=IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U&issuer=Example&counter=9223372036854775807")
+        XCTAssertEqual(result.account.counter, UInt64(Int64.max))
     }
 }

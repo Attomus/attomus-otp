@@ -5,6 +5,7 @@ sealed class TOTPError(message: String? = null) : Exception(message) {
     object InvalidDigitCount : TOTPError()
     object InvalidAlgorithm : TOTPError()
     object InvalidPeriod : TOTPError()
+    object InvalidTime : TOTPError()
     object SecretTooShort : TOTPError()
     object SecretTooLong : TOTPError()
 }
@@ -39,4 +40,3 @@ sealed class OTPURIError(message: String? = null) : Exception(message) {
     object IssuerMismatch : OTPURIError()
     object MalformedPercentEncoding : OTPURIError()
 }
-

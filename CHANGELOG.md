@@ -2,6 +2,15 @@
 
 All notable changes to AttomusOTP are documented here. Releases follow semantic versioning.
 
+## [1.1.0] - 2026-07-10
+
+### Fixed
+
+- Rejected unsupported TOTP periods and pre-epoch timestamps consistently in Swift and Kotlin.
+- Made Swift HOTP counter-blob verification safe for sliced `Data` values.
+- Aligned URI HOTP counter parsing to the signed 64-bit range across Swift and Kotlin.
+- Rejected invalid HOTP periods in Swift backup imports.
+
 ## [1.0.2] - 2026-05-19
 
 ### Fixed

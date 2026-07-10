@@ -170,7 +170,9 @@ private func parseCounter(_ rawValue: String?) throws -> UInt64 {
         throw OTPURIError.missingCounter
     }
 
-    guard !rawValue.hasPrefix("-"), let counter = UInt64(rawValue) else {
+    guard !rawValue.hasPrefix("-"),
+          let counter = UInt64(rawValue),
+          counter <= UInt64(Int64.max) else {
         throw OTPURIError.missingCounter
     }
 

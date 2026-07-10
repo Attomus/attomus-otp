@@ -82,6 +82,22 @@ class TOTPTest {
         assertThrows(TOTPError.InvalidPeriod::class.java) {
             TOTP.generate(secret = TestSupport.repeatedData(count = 20), clock = { 0L }, period = 45)
         }
+        assertThrows(TOTPError.InvalidPeriod::class.java) {
+            TOTP.remainingSeconds(clock = { 0L }, period = 0)
+        }
+    }
+
+    @Test
+    fun rejectsPreEpochTimes() {
+        val secret = TestSupport.repeatedData(count = 20)
+        listOf(-1L, -86_400L, -30L).forEach { timestamp ->
+            assertThrows(TOTPError.InvalidTime::class.java) {
+                TOTP.generate(secret = secret, clock = { timestamp })
+            }
+            assertThrows(TOTPError.InvalidTime::class.java) {
+                TOTP.remainingSeconds(clock = { timestamp })
+            }
+        }
     }
 
     @Test
