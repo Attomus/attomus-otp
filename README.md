@@ -15,7 +15,7 @@ authenticator for iOS and Android.
 
 | | Swift | Kotlin |
 |---|---|---|
-| Platform | iOS 16+, macOS 13+, watchOS 9+, tvOS 16+, Linux | Android (JVM/API 26+) |
+| Platform | iOS 16+, macOS 13+, Linux | Android (JVM/API 26+) |
 | Package | `swift/` — Swift Package Manager | `kotlin/` — Gradle |
 | Module | `import AttomusOTP` | `import com.attomus.otp.*` |
 | TOTP / HOTP | ✓ | ✓ |
@@ -34,9 +34,9 @@ formats, ensuring backup interoperability across platforms.
 
 ### Swift
 
-- Swift 5.9+
-- iOS 16+ / macOS 13+ / watchOS 9+ / tvOS 16+
-- Linux: Swift 5.9+ via [swift-crypto](https://github.com/apple/swift-crypto)
+- Swift 5.10+
+- iOS 16+ / macOS 13+
+- Linux: Swift 5.10+ via [swift-crypto](https://github.com/apple/swift-crypto)
 
 ### Kotlin
 
@@ -76,10 +76,10 @@ import AttomusOTP
 
 let code = try TOTP.generate(
     secret: secretBytes,  // raw seed bytes, not Base32-encoded
+    at: Date(),
     algorithm: .sha1,
     digits: 6,
-    period: 30,
-    at: Date()
+    period: 30
 )
 // "048921" — zero-padded to the requested digit count
 ```
@@ -142,7 +142,7 @@ let result = try parseOTPURI(
 // result.account.label   == "alice@example.com"
 // result.account.digits  == 6
 // result.account.period  == 30
-// result.secretBytes     — raw seed bytes, ready to pass to TOTP.generate
+// result.secret          — raw seed bytes, ready to pass to TOTP.generate
 ```
 
 Errors are typed (`OTPURIError`) — no strings to parse. Full validation is applied:
@@ -209,9 +209,8 @@ let counter = try verifyCounterBlob(blob, integrityKey: key)
 ```
 
 `integrityKey` must be 32 bytes. The format is fixed; Signet iOS and Android both
-produce and consume the same 41-byte layout. HMAC comparison is constant-time
-throughout (Swift: bitwise-XOR accumulator with no early exit; Kotlin:
-`MessageDigest.isEqual`).
+produce and consume the same 41-byte layout. This Swift API compares HMAC values
+with a bitwise-XOR accumulator and no early exit.
 
 ---
 
@@ -231,7 +230,7 @@ rejected.
 ## Security
 
 - All RFC 4226 (HOTP) and RFC 6238 (TOTP) test vectors pass in both implementations
-- HMAC comparison is constant-time throughout (Swift: bitwise-XOR accumulator with no early exit; Kotlin: `MessageDigest.isEqual`)
+- Swift counter-blob HMAC comparison uses a bitwise-XOR accumulator with no early exit
 - No secrets are logged, written to disk, or captured in error messages by either library
 - Fuzz-tested: the URI parser and backup schema decoder have been exercised through
   billions of iterations with zero crashes
@@ -259,6 +258,5 @@ improvements, platform compatibility.
 **Out of scope:** new OTP algorithms, encryption primitives, key management, platform
 integrations, or features beyond the defined scope.
 
-Security issues: open a GitHub issue or email
-[security@attomus.com](mailto:security@attomus.com). Please do not publish a finding
-publicly before giving us a reasonable window to respond.
+For security vulnerabilities, follow the private reporting process in
+[SECURITY.md](SECURITY.md). Do not open a public GitHub issue.

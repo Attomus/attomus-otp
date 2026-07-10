@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - attomus-otp-v*
+      - v*
   pull_request:
 
 jobs:
@@ -32,6 +32,13 @@ jobs:
       - name: Lint
         run: docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace ghcr.io/realm/swiftlint:latest --strict
 
+  kotlin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Kotlin test and static analysis
+        run: docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace/kotlin eclipse-temurin:17-jdk ./gradlew test detekt
+
   gitleaks:
     runs-on: ubuntu-latest
     steps:
@@ -47,8 +54,8 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Generate SBOM
         run: |
-          swift package show-dependencies --format json > sbom.json
-          echo "SBOM SHA256: $(shasum -a 256 sbom.json)"
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace swift:6.1 sh -c \
+            'swift package show-dependencies --format json > sbom.json && echo "SBOM SHA256: $(sha256sum sbom.json)"'
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: sbom-${{ github.ref_name }}
