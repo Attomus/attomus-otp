@@ -102,7 +102,7 @@ publishing {
                     connection.set("scm:git:https://github.com/attomus/attomus-otp.git")
                     developerConnection.set("scm:git:https://github.com/attomus/attomus-otp.git")
                     url.set("https://github.com/attomus/attomus-otp")
-                    tag.set("kotlin-v${project.version}")
+                    tag.set("v${project.version}")
                 }
             }
         }
