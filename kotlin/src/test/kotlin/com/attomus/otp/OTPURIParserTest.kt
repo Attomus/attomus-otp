@@ -43,7 +43,8 @@ class OTPURIParserTest {
             Triple("otpauth://totp/Example:account?secret=$alternateSecret&issuer=Example&image=https%3A%2F%2Fexample.com%2Ficon.png", OTPType.TOTP, "account"),
             Triple("otpauth://totp/Label%20With%20Spaces?secret=$alternateSecret", OTPType.TOTP, "Label With Spaces"),
             Triple("otpauth://totp/Example:alice@example.com?secret=$longSecret&issuer=%20", OTPType.TOTP, "alice@example.com"),
-            Triple("otpauth://totp/Example:alice@example.com?secret=$longSecret&algorithm=&digits=&period=", OTPType.TOTP, "alice@example.com")
+            Triple("otpauth://totp/Example:alice@example.com?secret=$longSecret&algorithm=&digits=&period=", OTPType.TOTP, "alice@example.com"),
+            Triple("otpauth://totp/GitHub:attomus-gh?secret=GM7VCK5SIAXEN46J&issuer=GitHub", OTPType.TOTP, "attomus-gh")
         )
 
         assertTrue(validCases.size >= 30)
@@ -52,7 +53,7 @@ class OTPURIParserTest {
             val result = OTPURIParser.parse(uri)
             assertEquals(expectedType, result.account.type)
             assertEquals(expectedLabel, result.account.label)
-            assertTrue(result.secret.size >= 16)
+            assertTrue(result.secret.size >= 10)
         }
     }
 

@@ -60,7 +60,7 @@ dependencies: [
 
 ```kotlin
 dependencies {
-    implementation("com.attomus:attomus-otp-android:1.0.1")
+    implementation("com.attomus:attomus-otp-android:1.0.2")
 }
 ```
 
@@ -244,7 +244,7 @@ rejected.
 
 ## Licence
 
-[MIT](LICENSE) — Copyright (c) 2026 Attomus Ltd
+[Apache License 2.0](LICENSE) — Copyright (c) 2026 Attomus Ltd
 
 ---
 

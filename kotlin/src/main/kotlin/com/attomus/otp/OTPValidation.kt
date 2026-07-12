@@ -1,7 +1,7 @@
 package com.attomus.otp
 
 internal object OTPValidation {
-    const val minimumSecretLength = 16
+    const val minimumSecretLength = 10
     const val maximumSecretLength = 64
 
     private val validDigits = setOf(6, 7, 8)
