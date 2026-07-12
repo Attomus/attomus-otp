@@ -5,6 +5,7 @@ public enum TOTPError: Error, Equatable, Sendable {
     case invalidDigitCount
     case invalidAlgorithm
     case invalidPeriod
+    case invalidTime
     case secretTooShort
     case secretTooLong
 }

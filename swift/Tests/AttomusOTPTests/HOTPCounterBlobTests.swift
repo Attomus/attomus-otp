@@ -26,6 +26,16 @@ final class HOTPCounterBlobTests: XCTestCase {
         }
     }
 
+    func testVerifiesBlobWithNonZeroStartIndex() throws {
+        let key = TestSupport.asciiData("0123456789abcdef0123456789abcdef")
+        let blob = try encodeCounterBlob(counter: 42, integrityKey: key)
+        let container = Data(repeating: 0xAA, count: 4) + blob + Data(repeating: 0xBB, count: 4)
+        let slice = container.dropFirst(4).dropLast(4)
+
+        XCTAssertEqual(slice.count, 41)
+        XCTAssertEqual(try verifyCounterBlob(slice, integrityKey: key), 42)
+    }
+
     func testRejectsInvalidBlobLengths() throws {
         let key = TestSupport.asciiData("0123456789abcdef0123456789abcdef")
 

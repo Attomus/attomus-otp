@@ -3,7 +3,7 @@ import Foundation
 
 private let fuzzAlgorithms: [OTPAlgorithm] = [.sha1, .sha256, .sha512]
 private let fuzzDigits = [6, 7, 8]
-private let fuzzPeriods = [15, 30, 60, 90]
+private let fuzzPeriods = [-1, 0, 1, 15, 30, 60, 90]
 
 @_cdecl("LLVMFuzzerTestOneInput")
 public func fuzzTOTP(_ data: UnsafePointer<UInt8>, _ size: Int) -> Int32 {
@@ -14,7 +14,7 @@ public func fuzzTOTP(_ data: UnsafePointer<UInt8>, _ size: Int) -> Int32 {
     let algorithm = fuzzAlgorithms[index(from: bytes, offset: 0, modulo: fuzzAlgorithms.count)]
     let digits = fuzzDigits[index(from: bytes, offset: 1, modulo: fuzzDigits.count)]
     let period = fuzzPeriods[index(from: bytes, offset: 2, modulo: fuzzPeriods.count)]
-    let timestamp = TimeInterval(counterValue(from: bytes, takingFirst: true) % 4_102_444_800)
+    let timestamp = TimeInterval(Int64(bitPattern: counterValue(from: bytes, takingFirst: true)))
     let counter = counterValue(from: bytes, takingFirst: false)
 
     _ = try? TOTP.generate(
@@ -24,6 +24,8 @@ public func fuzzTOTP(_ data: UnsafePointer<UInt8>, _ size: Int) -> Int32 {
         digits: digits,
         period: period
     )
+
+    _ = try? TOTP.remainingSeconds(at: Date(timeIntervalSince1970: timestamp), period: period)
 
     _ = try? HOTP.generate(
         secret: secret,

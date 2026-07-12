@@ -61,7 +61,7 @@ final class TOTPTests: XCTestCase {
         let secret = TestSupport.repeatedData(count: 20)
         let date = Date(timeIntervalSince1970: 120)
         XCTAssertEqual(try TOTP.generate(secret: secret, at: date, period: 60).count, 6)
-        XCTAssertEqual(TOTP.remainingSeconds(at: date, period: 60), 60)
+        XCTAssertEqual(try TOTP.remainingSeconds(at: date, period: 60), 60)
     }
 
     func testRejectsInvalidDigitCount() {
@@ -73,6 +73,25 @@ final class TOTPTests: XCTestCase {
     func testRejectsInvalidPeriod() {
         XCTAssertThrowsError(try TOTP.generate(secret: TestSupport.repeatedData(count: 20), at: Date(timeIntervalSince1970: 0), period: 45)) { error in
             XCTAssertEqual(error as? TOTPError, .invalidPeriod)
+        }
+
+        XCTAssertThrowsError(try TOTP.remainingSeconds(at: Date(timeIntervalSince1970: 0), period: 0)) { error in
+            XCTAssertEqual(error as? TOTPError, .invalidPeriod)
+        }
+    }
+
+    func testRejectsPreEpochTimes() {
+        let secret = TestSupport.repeatedData(count: 20)
+        let dates = [-1.0, -86_400.0, -30.0]
+
+        for timestamp in dates {
+            let date = Date(timeIntervalSince1970: timestamp)
+            XCTAssertThrowsError(try TOTP.generate(secret: secret, at: date)) { error in
+                XCTAssertEqual(error as? TOTPError, .invalidTime)
+            }
+            XCTAssertThrowsError(try TOTP.remainingSeconds(at: date)) { error in
+                XCTAssertEqual(error as? TOTPError, .invalidTime)
+            }
         }
     }
 

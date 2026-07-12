@@ -77,7 +77,7 @@ private func extractCounter(from blob: Data) throws -> UInt64 {
         throw HOTPCounterBlobError.invalidBlobLength
     }
 
-    let counterBytes = blob[1..<9]
+    let counterBytes = blob.dropFirst().prefix(8)
     var counter: UInt64 = 0
     for byte in counterBytes {
         counter = (counter << 8) | UInt64(byte)

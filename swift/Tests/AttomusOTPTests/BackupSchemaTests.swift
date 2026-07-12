@@ -133,6 +133,20 @@ final class BackupSchemaTests: XCTestCase {
         }
     }
 
+    func testRejectsInvalidHOTPPeriod() throws {
+        let accountID = try uuid("550E8400-E29B-41D4-A716-446655440008")
+
+        for period in [0, -30] {
+            let data = #"""
+            {"schema":1,"exported":"2026-04-17T12:00:00Z","accounts":[{"id":"\#(accountID.uuidString)","type":"hotp","accountName":"alice@example.com","issuer":"Example","algorithm":"SHA1","digits":6,"period":\#(period),"counter":42,"secret":"IFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2U","createdAt":"2026-04-17T12:00:00Z"}]}
+            """#
+
+            XCTAssertThrowsError(try decodeExportDocument(Data(data.utf8))) { error in
+                XCTAssertEqual(error as? OTPBackupError, .invalidPeriod(accountID: accountID))
+            }
+        }
+    }
+
     func testRejectsMissingHOTPCounter() throws {
         let accountID = try uuid("550E8400-E29B-41D4-A716-446655440007")
         let data = #"""

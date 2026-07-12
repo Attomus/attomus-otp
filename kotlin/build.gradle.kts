@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.attomus"
-version = "1.0.2"
+version = "1.1.0"
 
 java {
     toolchain {

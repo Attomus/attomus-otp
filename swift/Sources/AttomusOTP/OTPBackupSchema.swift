@@ -214,7 +214,13 @@ private func validatedPeriod(for account: RawAccountExport) throws -> Int {
         }
         return 30
     case .hotp:
-        return account.period ?? 30
+        let period = account.period ?? 30
+        do {
+            try OTPValidation.validateURIPeriod(period)
+        } catch {
+            throw OTPBackupError.invalidPeriod(accountID: account.id)
+        }
+        return period
     }
 }
 

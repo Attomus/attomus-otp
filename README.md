@@ -60,7 +60,7 @@ dependencies: [
 
 ```kotlin
 dependencies {
-    implementation("com.attomus:attomus-otp-android:1.0.2")
+    implementation("com.attomus:attomus-otp-android:1.1.0")
 }
 ```
 
