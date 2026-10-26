@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import Foundation
 
 public func parseOTPURI(_ uri: String) throws -> OTPProvisioningResult {

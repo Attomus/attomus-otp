@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package com.attomus.otp
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
