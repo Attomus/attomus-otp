@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package com.attomus.otp
 
 import com.code_intelligence.jazzer.api.FuzzedDataProvider

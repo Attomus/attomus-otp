@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import io.gitlab.arturbosch.detekt.Detekt
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.plugins.JavaPluginExtension
